@@ -1,13 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import WelcomeScreen from './components/WelcomeScreen'
-import './styles/main.css'
+import './index.css'
 
-// Add console log for debugging
-console.log('VEXO Initializing...');
+console.log('VEXO: Starting initialization...');
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+console.log('VEXO: Root element found:', document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
     <WelcomeScreen />
   </React.StrictMode>
-)
+);
+
+console.log('VEXO: Render attempted');

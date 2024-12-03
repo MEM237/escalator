@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 class GeminiService {
   constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY);
+    this.genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     this.chat = null;
   }
@@ -14,12 +14,7 @@ class GeminiService {
           {
             role: "user",
             parts:
-              "You are VEXO AI, a helpful assistant in a video chat application. Keep responses concise and clear.",
-          },
-          {
-            role: "model",
-            parts:
-              "Initialized as VEXO AI. Ready to assist in video chat context.",
+              "You are VEXO AI, a helpful assistant in a video chat application.",
           },
         ],
       });
@@ -35,7 +30,6 @@ class GeminiService {
       if (!this.chat) {
         await this.initializeChat();
       }
-
       const result = await this.chat.sendMessage(message);
       const response = await result.response;
       return response.text();
@@ -46,4 +40,5 @@ class GeminiService {
   }
 }
 
-export default new GeminiService();
+const geminiService = new GeminiService();
+export default geminiService;

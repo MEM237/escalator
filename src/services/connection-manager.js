@@ -11,20 +11,23 @@ class ConnectionManager {
   }
 
   async initializeConnection(roomId) {
-    this.roomId = roomId;
+    if (!roomId) {
+      throw new Error("Room ID is required");
+    }
 
     try {
-      // Initialize signaling
-      this.peerId = await SignalingService.createRoom(roomId);
+      // Initialize room first
+      await SignalingService.createRoom(roomId);
+      this.roomId = roomId;
 
-      // Initialize WebRTC
+      // Initialize WebRTC after room is created
       await WebRTCService.initializeConnection();
 
       // Start local stream
       const localStream = await WebRTCService.startLocalStream();
 
-      // Listen for remote signals
-      this.setupSignalHandling();
+      // Update room status
+      await this.updateStatus("connected");
 
       return {
         localStream,
@@ -32,10 +35,10 @@ class ConnectionManager {
       };
     } catch (error) {
       console.error("Connection initialization failed:", error);
+      await this.updateStatus("error");
       throw error;
     }
   }
-
   setupSignalHandling() {
     SignalingService.onSignal(async (data) => {
       try {

@@ -3,13 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  root: ".",
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      input: {
-        main: "./popup.html",
-      },
-    },
+  server: {
+    port: 5173,
+    host: true,
+  },
+  css: {
+    postcss: "./postcss.config.js",
   },
 });
