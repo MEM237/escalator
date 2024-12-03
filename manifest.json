@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "VEXO Escalator 1.0",
+    "version": "1.0",
+    "description": "P2P AI-Enhanced Communication",
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "webNavigation",
+      "scripting",
+      "storage"
+    ],
+    "host_permissions": [
+      "*://*/*"
+    ],
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'; connect-src *; media-src *"
+    }
+  }
