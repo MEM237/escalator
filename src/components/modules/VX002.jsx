@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import placeholderGif from '../../assets/images/placeholder0.gif';
 
 const VX002 = ({ remoteStream }) => {
   const videoRef = useRef(null);
@@ -12,8 +13,15 @@ const VX002 = ({ remoteStream }) => {
   return (
     <div className="h-[250px] border-b border-red-900/30 bg-gradient-to-b from-gray-900 to-black">
       {!remoteStream ? (
-        <div className="w-full h-full flex items-center justify-center text-gray-600">
-          AWAITING REMOTE CONNECTION...
+        <div className="w-full h-full relative">
+          <img 
+            src={placeholderGif} 
+            alt="Awaiting Connection"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute bottom-2 left-2 text-red-400 font-mono text-sm">
+            AWAITING REMOTE CONNECTION...
+          </div>
         </div>
       ) : (
         <video

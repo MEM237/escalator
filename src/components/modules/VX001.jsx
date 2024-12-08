@@ -1,60 +1,94 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import vexoGif from '../../assets/images/vexo0.gif';
 
-const VX001 = () => {
+const VX001 = ({ user }) => {
+  const [hasCamera, setHasCamera] = useState(false);
+  const [error, setError] = useState(null);
+  const [isStreamActive, setIsStreamActive] = useState(false); // Add this new state
   const videoRef = useRef(null);
 
-  useEffect(() => {
-    async function enableCamera() {
-      try {
-        console.log("Attempting to access camera...");
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            width: { ideal: 140 }, 
-            height: { ideal: 100 } 
-          }, 
-          audio: false 
-        });
-        
-        if (videoRef.current) {
-          console.log("Camera access granted, setting stream...");
-          videoRef.current.srcObject = stream;
-          // Force a play attempt
-          try {
-            await videoRef.current.play();
-            console.log("Video playback started");
-          } catch (playError) {
-            console.error("Error playing video:", playError);
-          }
-        }
-      } catch (err) {
-        console.error("Camera access error:", err);
+  const enableCamera = async () => {
+    console.log('Attempting to enable camera...');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      console.log('Camera access granted:', stream);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.onloadedmetadata = () => {
+          console.log('Video element ready to play');
+          videoRef.current.play();
+          setHasCamera(true);
+          setIsStreamActive(true); // Set stream as active when video starts playing
+        };
       }
+    } catch (err) {
+      console.error('Camera access error:', err);
+      setError('Camera access required for VTX protocol');
     }
+  };
 
-    enableCamera();
+  // Monitor video stream state
+  useEffect(() => {
+    if (videoRef.current?.srcObject) {
+      console.log('Stream state:', isStreamActive ? 'active' : 'inactive');
+    }
+  }, [isStreamActive]);
 
-    return () => {
-      if (videoRef.current?.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-      }
-    };
-  }, []);
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'USER';
 
   return (
     <div className="h-[100px] border-b border-red-900/30 flex">
-      <div className="w-[260px] border-r border-red-900/30 p-4 text-gray-400 bg-gradient-to-b from-gray-900 to-black">
-        VEXO 1.0 - LOCAL FEED INITIALIZING
+      {/* VX001-B: Control Center */}
+      <div className="w-[260px] border-r border-red-900/30 bg-gradient-to-b from-gray-900 to-black relative">
+        <div className="absolute top-2 left-2 text-red-400 font-mono text-sm">
+          {displayName}
+        </div>
+        
+        {/* Only show button if camera is not active */}
+        {!isStreamActive && (
+          <div className="absolute bottom-2 right-2">
+            <button 
+              onClick={enableCamera}
+              className="bg-gray-900 border border-red-800 px-4 py-2 
+                       text-red-400 hover:bg-gray-800 hover:text-pink-400 
+                       transition-colors font-mono text-sm"
+            >
+              ENABLE CAM
+            </button>
+          </div>
+        )}
+        
+        {error && (
+          <div className="absolute bottom-2 left-2 text-red-500 text-xs">
+            {error}
+          </div>
+        )}
+        
+        {isStreamActive && (
+          <div className="absolute top-2 right-2 text-red-400 font-mono text-xs">
+            VTX ACTIVE
+          </div>
+        )}
       </div>
-      <div className="w-[140px] p-2 bg-gray-900">
+
+      {/* VX001-A: Local Camera Feed */}
+      <div className="w-[140px] bg-gray-900">
+        {/* Show video element always, but only display placeholder when stream is not active */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          className="bg-black border border-red-900/20"
+          className={`w-full h-full object-cover ${!isStreamActive ? 'hidden' : ''}`}
         />
+        {!isStreamActive && (
+          <img 
+            src={vexoGif} 
+            alt="VEXO"
+            className="w-full h-full object-cover"
+          />
+        )}
       </div>
     </div>
   );
