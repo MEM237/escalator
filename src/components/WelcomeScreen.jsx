@@ -3,6 +3,7 @@ import { auth } from '../services/firebase';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import VTXWindow from './VTXWindow';
 import escalatorGif from '../assets/images/escalator0.gif';
+import TestPanel from './TestPanel';
 
 const WelcomeScreen = () => {
   const [user, setUser] = useState(null);
@@ -68,6 +69,9 @@ const WelcomeScreen = () => {
           />
         )}
       </div>
+
+      {/* Add TestPanel here, only shown in development environment */}
+      {process.env.NODE_ENV === 'development' && <TestPanel />}
     </div>
   );
 };

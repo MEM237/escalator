@@ -1,9 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
 class GeminiService {
   constructor() {
-    this.genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    this.model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     this.chat = null;
   }
 
@@ -13,8 +14,11 @@ class GeminiService {
         history: [
           {
             role: "user",
-            parts:
-              "You are VEXO AI, a helpful assistant in a video chat application.",
+            parts: [
+              {
+                text: "You are VEXO AI, a helpful assistant in a video chat application.",
+              },
+            ],
           },
         ],
       });
@@ -27,18 +31,13 @@ class GeminiService {
 
   async processMessage(message) {
     try {
-      if (!this.chat) {
-        await this.initializeChat();
-      }
       const result = await this.chat.sendMessage(message);
-      const response = await result.response;
-      return response.text();
+      return result.response.text();
     } catch (error) {
-      console.error("Gemini processing error:", error);
-      return "Error processing message. Please try again.";
+      console.error("Message processing error:", error);
+      throw error;
     }
   }
 }
 
-const geminiService = new GeminiService();
-export default geminiService;
+export default new GeminiService();

@@ -1,61 +1,60 @@
 import { auth } from "./firebase";
 import {
+  signInWithPopup,
+  GoogleAuthProvider,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
   signOut,
 } from "firebase/auth";
 
-class AuthService {
-  constructor() {
-    this.auth = auth;
-    this.user = null;
-  }
-
-  async register(email, password) {
+const AuthService = {
+  async signInWithGoogle() {
     try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      return result.user;
+    } catch (error) {
+      console.error("Auth error:", error);
+      throw error;
+    }
+  },
+
+  async createTestUser() {
+    try {
+      const testEmail = `test${Date.now()}@vexo.com`;
+      const testPassword = "test123";
       const userCredential = await createUserWithEmailAndPassword(
-        this.auth,
-        email,
-        password
+        auth,
+        testEmail,
+        testPassword
       );
       return userCredential.user;
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Test user creation error:", error);
       throw error;
     }
-  }
+  },
 
-  async login(email, password) {
+  async toggleTestUser() {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        this.auth,
-        email,
-        password
-      );
-      return userCredential.user;
+      if (auth.currentUser) {
+        await signOut(auth);
+        return null;
+      } else {
+        return await this.createTestUser();
+      }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Toggle test user error:", error);
       throw error;
     }
-  }
+  },
 
-  async logout() {
-    try {
-      await signOut(this.auth);
-    } catch (error) {
-      console.error("Logout error:", error);
-      throw error;
-    }
-  }
-
-  onAuthChange(callback) {
-    return onAuthStateChanged(this.auth, callback);
-  }
+  onAuthStateChanged(callback) {
+    return auth.onAuthStateChanged(callback);
+  },
 
   getCurrentUser() {
-    return this.auth.currentUser;
-  }
-}
+    return auth.currentUser;
+  },
+};
 
-export default new AuthService();
+export default AuthService;
